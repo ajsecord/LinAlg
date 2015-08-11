@@ -631,7 +631,7 @@
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
-				SDKROOT = macosx;
+				SDKROOT = iphoneos;
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Debug;
@@ -651,7 +651,7 @@
 					../../src,
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx;
+				SDKROOT = iphoneos;
 				WARNING_CFLAGS = "-Wall";
 			};
 			name = Release;

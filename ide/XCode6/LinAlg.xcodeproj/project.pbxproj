@@ -417,7 +417,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "cd ../..\n\t\nif [ \"$ACTION\" = \"build\" ]; then\n\tcd doc/code\n\t/sw/bin/doxygen Doxyfile\n\nelif [ \"$ACTION\" = \"clean\" ]; then\n\trm -rf doc/code/html\n\nelse\n\techo error: unknown action $ACTION\n\texit 1\nfi\n\n";
+			shellScript = "cd ../..\n\t\nif [ \"$ACTION\" = \"build\" ]; then\n\tcd doc/code\n    /usr/local/bin/doxygen Doxyfile\n\nelif [ \"$ACTION\" = \"clean\" ]; then\n\trm -rf doc/code/html\n\nelse\n\techo error: unknown action $ACTION\n\texit 1\nfi\n\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

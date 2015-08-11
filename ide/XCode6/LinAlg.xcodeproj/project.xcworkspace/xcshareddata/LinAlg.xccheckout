@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>C8B31C86-F03C-42C2-A4C7-551DE54457EC</string>
+	<key>IDESourceControlProjectName</key>
+	<string>project</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>054F65B9119507F067AF03FB2D46F4D0290127B4</key>
+		<string>github.com:ajsecord/LinAlg.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>ide/XCode6/LinAlg.xcodeproj/project.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>054F65B9119507F067AF03FB2D46F4D0290127B4</key>
+		<string>../../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>github.com:ajsecord/LinAlg.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>054F65B9119507F067AF03FB2D46F4D0290127B4</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>054F65B9119507F067AF03FB2D46F4D0290127B4</string>
+			<key>IDESourceControlWCCName</key>
+			<string>LinAlg</string>
+		</dict>
+	</array>
+</dict>
+</plist>

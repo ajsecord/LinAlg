@@ -1,0 +1,283 @@
+/** \mainpage Introduction
+
+\section intro Introduction to LinAlg
+
+LinAlg 3.1 is a simple C++ template vector and matrix library, generally intended for 
+2D, 3D, 4D computations in computer graphics and related fields.  The objects are 
+fixed-size and the storage is dense, resulting in good optimization opportunities
+for the compiler.  
+
+Vectors and matrices are stored as dense arrays of values.  All basic 
+types are supported for the underlying storage type, and by default, the library 
+includes instantiations for \c float, \c double, \c int and \c unsigned \c int in 
+two, three and four dimensions.
+
+\section changes_intro Changes since version 2.0
+
+\subsection removed_dimension Removal of the dimension template parameter 
+
+In version 2, each of Vector and Matrix were templated on both the underlying
+data type and the dimension, for example, LinAlg::Vector<float,2>.  However, using 
+this approach, it is difficult to provide constructors such as Vector(float x, float y).
+The current version generates source for each dimension separately, for example, 
+LinAlg::Vec2<float>.  Note that the names were shortened from Vector to Vec and
+Matrix to Mat.  The library provides source for both Vec and Mat in dimensions 
+2, 3, and 4.  If you need different dimensions, they are trivially generated using
+\c src/generate.cpp.  <i>Please note that Vec?.h and Mat?.h are now generated files, 
+and should not be edited directly.</i>  Edit \c VecTemplate.* and \c MatTemplate.* 
+instead and re-run \c generate.
+
+Note that this means that each individual header (Vec2.h, Vec3.h, etc.) should
+be smaller and faster to compile.  Currently the headers only pull in \c &lt;iosfwd&gt;
+and \c &lt;string&gt;, the latter could be removed if the \c description() member is not
+needed.
+
+\c Convenience.h and its \c build() functions has been removed in favor of using each 
+classes' constructor directly.  Similarily, the \c convert() methods (for converting
+from a class of different underlying type) have been replaced by the constructors.
+
+\subsection zero_init Zero initialization by the default constructors
+
+Some users wanted the default constructor to automatically zero out the object's
+data, making the default constructor the same as explicitly assigning from the 
+zero vector.  This is a speed/safety tradeoff which can be controlled by defining
+the preprocessor macro \c LINALG_DEFAULT_INITIALIZE_TO_ZERO.  If this macro is 
+not defined then vectors and matrices are not initialized in the default constructor.
+If this macro is defined, then they are intialized to zero.
+
+\section dependencies Dependencies
+The code is self-contained except for the optional ability to call the
+<a href="http://www.netlib.org/lapack/">LAPACK</a> numerical library to determine 
+the eigenvalues and eigenvectors for matrices with dimension greater than three.  
+For 2D and 3D matrices, it is more efficient and feasible to compute the eigenvalues and 
+eigenvectors "by hand", so these do not need LAPACK.  
+
+On Unix-type systems, link against the system-supplied 
+LAPACK library, ususally called \c liblapack or, on OS X, the \c vecLib framework.
+Under Windows, the easiest way to get LAPACK is to download Intel's 
+<a href="http://www3.intel.com/cd/software/products/asmo-na/eng/307757.htm">MKL</a> library, 
+which includes LAPACK.  Unfortunately, the MKL is commercial software, though it does 
+have a free evaluation.  
+
+If you don't care about computing eigenvalues and 
+eigenvectors for dimensions four and above, then you can define the macro 
+\c LINALG_NO_LAPACK, which will 
+remove the requirement to link against LAPACK and make LinAlg completely self-contained.
+
+
+\section build Included build environments
+There are projects to build the library and its test suite for the following 
+integrated development environments:
+- Apple's XCode 3.x in <code>ide/XCode 3</code>.  This should be compatible with
+XCode 2.x, but I can't verify this.
+- Microsoft Visual Studio Express 2005, also known as Visual Studio 8.0, in
+<code>ide/VisualStudio8.0</code>.
+
+\section test Test suite and examples
+There is a test suite in <code>src/run_tests.cpp</code> that tests most aspects of the 
+library and a tiny example in <code>src/example.cpp</code> that demonstrates "normal" 
+usage.  You should be able to build and run these to verify that everything is 
+working.  The included IDE project files include targets to do this for you.
+
+\section template Template libraries and linking
+
+By default, LinAlg provides \c Vec and \c Mat for the types \c float, \c double, 
+\c int and \c unsigned \c int in two, three and four dimensions.  If this is all 
+you need, then you can skip this section.  If you need LinAlg to not generate these
+default types, or if you need to use a custom type, then you should read this section.
+
+C++ template libraries are different from standard libraries.  A C++ template
+does not actually generate code; it's a pattern that tells the compiler how
+to generate code when the user actually creates an instantiation of the class.
+
+A normal class usage might look like this:
+\code
+// In the header List.h
+class List {
+    public:
+    void print();
+    ...
+};
+
+// In the implementation List.cpp
+#include "List.h"
+void List::print() {
+    ...
+}
+
+// In some program
+#include "List.h"
+int main() {
+    List list;
+    list.print();
+}
+\endcode
+The implementation file is compiled once and the resulting object code for \c print()
+is stashed away into an object file <code>List.o</code>.  When the main program is
+compiled, then the compiler generates a reference to the body of \c List::print(),
+then the linker puts it all together into a runnable program.  It works because
+the linker can find the implementation of \c List::print() in \c List.o.  The 
+important point is that when the compiler is compiling the main program, it 
+doesn't have the implementation of \c List::print() (it's only read \c List.h), 
+but it can generate a reference to it and trust that the linker will find it.
+
+If we change \c List to depend on a template parameter \c T, we might start with
+this:
+\code
+// In the header List.h
+template <typename T> 
+class List {
+    public:
+    void print();
+    ...
+};
+
+// In the implementation List.cpp
+#include "List.h"
+template <typename T>
+void List<T>::print() {
+    ...
+}
+
+// In some program
+#include "List.h"
+int main() {
+    List<int> list;
+    list.print();
+}
+\endcode
+If you were to try to compile this together, however, you would get an
+error because the linker would not be able to find the implementation of 
+\c List<int>::print().  When the compiler compiles the main program, it 
+reads only \c List.h, not \c List.cpp.  So when it sees the declaration
+<code>List<int> list</code>, it does its copy and paste trick replacing \c T
+for \c int in the \c List class.  However, since it doesn't have the implementation 
+of \c print(), all it can do is generate references to \c List<int>::print(), just
+like in the non-template version.  So far, so good.  However, the problem is that when the 
+compiler compiles \c List.cpp, it has no clue what types might get substituted
+for the type \c T, and so it generates <i>no actual object code at all</i>.  So \c List.o
+has no object code for \c List<int>::print() and the linker will fail to produce
+a working program.
+
+A related problem is inline functions: for the compiler to insert the body of an
+inlined function into its caller, it must have the entire definition at hand when
+the function is called.  Hence inline functions must always be placed in full in 
+the header.  Most of LinAlg functions are very simple (generally consisting of
+a single loop over the elements) and are inlined and thus
+defined fully in the header.  However, 
+some significantly-large ones are not: for example, input/output and those that call the standard 
+numerical library <a href="http://www.netlib.org/lapack/">LAPACK</a>.  
+The rest of this discussion pertains to these 
+non-inlined functions.
+
+In our simple example, there are currently two solutions: the first, and most common, 
+is to simply append the definitions
+from \c List.cpp at the end of \c List.h as inlined functions and forget about \c List.cpp.  Then, when
+the compiler compiles the main program, \c List.h contains the complete code for 
+\c List and the declaration <code>List<int> list</code> generates object code for
+all of \c List<int>, including \c List<int>::print().  This is a "header-only" 
+library, but it has one major drawback: the header file can get enormous.  Every 
+file that includes \c List.h has to read and parse the entire implementation of 
+\c List!  You are in effect not just compiling \c List.cpp once, but <i>every time</i> you 
+compile a file that uses \c List.  Remember also that while header files can often 
+forward-declare or otherwise avoid including other headers, the actual implementation always
+needs full definitions and headers for everything it uses.  This is a major reason why many C++ libraries are 
+so horribly slow to compile against. <i>Slow compilation times mean low programmer 
+productivity.</i>
+
+The other solution is to force the compiler to generate object code for \c List<int>
+while it is compiling \c List.cpp.  C++ has a mechanism for this, it is called
+<i>explicit instantiation</i>.  With explicit instantiation, our example becomes:
+\code
+// In the header List.h
+template <typename T> 
+class List {
+    public:
+    void print();
+    ...
+};
+
+// In the implementation List.cpp
+#include "List.h"
+template <typename T>
+void List<T>::print() {
+    ...
+}
+template class List<int>;   // Explicit instantiation
+
+// In some program
+#include "List.h"
+int main() {
+    List<int> list;
+    list.print();
+}
+\endcode
+When the compiler compiles \c List.cpp and reads the explicit instantiation, 
+it generates object code for all of \c List<int> and places them in \c List.o, 
+since it has all the definitions it needs at that point.  The linker will end up
+finding the object code for \c List<int>::print() in \c List.o and will generate
+a working program.  The upside of this solution is that the implementation is only
+compiled once, not multiple times and the header gets to stay as small as possible.
+The downside is that you somehow have to magically know what types you will be using in your
+program and insert the explicit instantions into the implementation code.  For 
+general libraries, this is tricky or impossible.  However, for a relatively 
+well-characterized library like a linear algebra library, however, we can probably guess.  
+
+LinAlg uses this second solution to keep the header files as small as possible.
+By default we instantiate the templates for the 
+\c float, \c double, \c int, and \c unsigned types.  When compiling the library, 
+you can control the explicit instantiations in two ways: 
+- To avoid generating these default instantiations, you can 
+define the preprocessor macro \c LINALG_SKIP_DEFAULT_INSTANTIATIONS.  
+- To instantiate a Vec and Mat with your own type, 
+define the preprocessor macros \c LINALG_INSTANTIATE_USER_TYPE. For example, define
+\code
+LINALG_INSTANTIATE_USER_TYPE=long double
+\endcode
+ to generate vectors
+ and matrices that use <code>long double</code>'s as storage.  If you need more than
+a single type, edit VectorTemplate.cpp and MatrixTemplate.cpp, add your types to the end, 
+and re-run \c generate.
+
+\section problems Known Problems
+
+\subsection VisualStudioExpress8 Visual Studio Express C++ 8.0
+
+Visual Studio Express 8.0 with service pack 1 applied has a known bug when compiling some 
+member functions.  If you get an error C2244 "unable to match function definition" when 
+compiling Vector.cpp, you need to apply the hotfix listed in the following knowledge base
+article from Microsoft:
+
+http://support.microsoft.com/default.aspx/kb/930198
+
+You should only apply this hotfix if you are actually getting the C2244 error.
+
+
+\section changes Changes
+
+\subsection 3_0 Changes from version 3.0
+- Added forwarding headers like LinAlg/Vec2Fwd.h.
+
+\subsection 2_0 Changes from version 2.0
+- Removed the dimension template parameter in favor of generating the source directly.
+Edit VecTemplate.* and MatTemplate.* and re-run \c generate to make changes to 
+any of Vec?.h or Mat?.h.
+- Removed Convenience.h, the build() functions, and the convert() members.  The 
+constructors now provide this functionality.
+- Added optional zero-initialization in the default constructors.
+- Remove the deprecated \c operator[] from the vector classes.
+
+\subsection 1_0 Changes from version 1.0
+- Added a test suite in \c run_tests.cpp
+- Added \c Vector::unit() for creating unit vectors
+- Added \c Vector::proj() to project one vector onto another
+- Added code documentation
+- Added Visual Studio 7/8 project files
+- Dropped support for the legacy constructors that took an argument that specified the size of the vector/matrix.
+- Removed \c Vector::rand(), since random number generation is very application-specific
+    and shouldn't be in a library.
+- Removed the \c buildVec() and \c buildMat() routines and replaced with the unified
+  \c build() routines in \c Convenience.h.
+- Added preprocessor logic for template instantiations and user types.
+- Added preprocessor logic to remove LAPACK calls.
+*/
